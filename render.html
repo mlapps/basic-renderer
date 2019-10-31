@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+</head>
+<body>
+<script type="module">
+    import lng from "./node_modules/wpe-lightning/index.js";
+
+    // setup render tree
+    const stage = new lng.Stage({w:window.innerWidth, h:window.innerHeight, clearColor:0xaa000000});
+    const wrapper = new lng.Element(stage);
+
+    // wrapper will end up being root
+    stage.setApplication(wrapper);
+    stage.init();
+
+    document.body.appendChild(stage.getCanvas());
+
+    // create text element
+    const text = stage.createElement({
+        Wrapper:{ x: 100, y: 100,
+            Label:{texture:{type: lng.textures.TextTexture, text:'hello world', textColor: '0xffffffff'}}
+        }
+    });
+
+    // create rectangle
+    const rectangle = stage.createElement({
+        Wrapper:{ x: 100, y: 220,
+            Label:{texture:{type: lng.textures.RectangleTexture}, w:100, h:100, color: 0xfffca903}
+        }
+    });
+
+    // create image
+    const image = stage.createElement({
+        Image:{ x: 100, y:400,
+            texture:{
+                type: lng.textures.ImageTexture,
+                src: "./static/music.png",
+            }, w:100, h:100
+        }
+    });
+
+    // rounded rectangle
+    const rounded = stage.createElement({
+        x: 400, y: 100,
+        texture: lng.Tools.getRoundRect(200,200,50,5, 0xffffffff)
+    });
+
+    // attach children to render tree
+    wrapper.children = [text, rectangle, image, rounded];
+
+    // create custom element with some custom logic
+    // but still make use of lifecycle events
+    class CustomElement extends lng.Element{
+        _onSetup(){
+            this._move = this.animation({
+                duration: 2, repeat:2, actions:[
+                    {p:'x', v:{0:400, 0.5:600, 1:400}},
+                    {p:'alpha', v:{0:1, 0.5:0, 1:1}},
+                ]
+            });
+
+            // hide on finish
+            this._move.on("finish",()=>{
+                this.visible = false;
+            })
+        }
+
+        _onActive(){
+            console.log("Im visible");
+        }
+
+        _onInactive(){
+            console.log("Im hidden");
+        }
+
+        doSomethingFancy(){
+            this._move.start();
+        }
+    }
+
+    // create new instance of custom element
+    const custom = stage.c({
+        type:CustomElement, y: 400, x: 400,
+        texture:{type: lng.textures.TextTexture, text:'Custom element', textColor: '0xffffffff'}
+    });
+
+    // add to the end of the childList
+    wrapper.add(custom);
+
+    // call some method
+    custom.doSomethingFancy();
+
+    // some keyhandling
+    window.addEventListener("keydown",()=>{
+        rounded.setSmooth("x", 900);
+    });
+
+    window.addEventListener("keyup",()=>{
+        rounded.setSmooth("x", 400);
+    });
+
+</script>
+</body>
+</html>

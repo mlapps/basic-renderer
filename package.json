@@ -1,0 +1,7 @@
+{
+  "author": "Metrological",
+  "name": "basic-render",
+  "dependencies": {
+    "wpe-lightning": "git+https://github.com/WebPlatformForEmbedded/Lightning.git"
+  }
+}
